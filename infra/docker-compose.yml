@@ -1,0 +1,74 @@
+services:
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: skin-service-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    extra_hosts:
+      - "localhost:host-gateway"
+    networks:
+      - skin-service-network
+    depends_on:
+      - postgres
+      - minio
+      - ml-service
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: skin-service-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - skin-service-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: skin-service-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - skin-service-network
+
+  ml-service:
+    build:
+      context: ../ml-service
+      dockerfile: Dockerfile
+    container_name: skin-service-ml
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_PATH: models/efficientnet_merged.pth
+      MODEL_VERSION: 1.0.0
+      API_KEY: ${ML_API_KEY}
+    networks:
+      - skin-service-network
+
+volumes:
+  postgres_data:
+  minio_data:
+
+networks:
+  skin-service-network:
+    driver: bridge
+
