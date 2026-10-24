@@ -1,10 +1,5 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  mockHistoryAnalyses,
-  statusLabel,
-  type AnalysisStatus,
-} from '@/mocks/analyses'
 import { AppPageShell } from '@/shared/layout/AppPageShell'
 import { PageCenter, PageSection } from '@/shared/layout/PageContent'
 import {
@@ -21,8 +16,19 @@ import Card from '@/shared/ui/Card'
 import EmptyState from '@/shared/ui/EmptyState'
 import ListItem from '@/shared/ui/ListItem'
 import Spinner from '@/shared/ui/Spinner'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+
+type FilterValue = 'all' | AnalysisStatus
+
+const filters: { value: FilterValue; label: string }[] = [
+  { value: 'all', label: 'Все' },
+  { value: 'completed', label: 'Готово' },
+  { value: 'processing', label: 'В обработке' },
+  { value: 'failed', label: 'Ошибка' },
+]
+
+export default function HistoryPage() {
+  const navigate = useNavigate()
+  const [activeFilter, setActiveFilter] = useState<FilterValue>('all')
   const [analyses, setAnalyses] = useState<AnalysisView[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
