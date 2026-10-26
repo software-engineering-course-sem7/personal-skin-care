@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-const backendTarget = 'http://localhost:8080'
+const backendTarget = process.env.VITE_PROXY_TARGET ?? 'http://localhost:8080'
 
 const proxyOptions = {
   target: backendTarget,
