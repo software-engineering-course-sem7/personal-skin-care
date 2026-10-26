@@ -19,6 +19,10 @@
 - Backend (Gin сервер)
 - PostgreSQL
 - MinIO
+- ML-сервис
+- Frontend
+
+Миграции базы данных и начальные данные будут автоматически применены при первом запуске.
 
 Backend будет доступен на http://localhost:8080
 
@@ -32,32 +36,42 @@ Backend будет доступен на http://localhost:8080
 
 ## Миграции базы данных
 
-Команда выполняется один раз при первом запуске проекта или после сброса данных PostgreSQL.
+### Автоматические миграции (Docker Compose)
 
-Установка migrate:
+При `docker compose up` автоматически применяются миграции:
+- Запускается контейнер `migrate` (смотри Dockerfile.migrate)
+- Миграции применяются через `psql` к базе данных `postgres://${POSTGRES_USER}@postgres:5432/${POSTGRES_DB}`
+
+Для ручного выполнения в Docker:
+
+    docker compose up migrate
+
+Для ручного выполнения локально (если `migrate` не установлен):
 
     go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-
-Применение миграций (строка подключения зависит от переменных окружения):
-
     migrate -path migrations -database "postgres://postgres:postgres@localhost:5432/skin_service?sslmode=disable" up
 
 
 ## Seed-данные
 
-После применения миграций необходимо заполнить базу начальными данными.
+### Автоматические seed (Docker Compose)
 
-В проекте используется seed-скрипт с рекомендациями по уходу и активными компонентами.
+После миграций автоматически применяются seed-данные:
+- Запускается контейнер `seed` (смотри Dockerfile.seed)
+- Seed скрипт `scripts/seeds.sql` импортируется через `psql`
 
-Запуск seed-скрипта в консоли PostgreSQL:
+Для ручного выполнения:
 
-    psql -U postgres -d skin_service -f scripts/seeds.sql
+    docker compose up seed
 
-
-Запуск seed-скрипта для Docker-контейнера PostgreSQL:
+Для ручного выполнения в Docker-контейнере PostgreSQL (локальный):
 
     docker cp scripts/seeds.sql skin-service-postgres:/tmp/seeds.sql
     docker exec -it skin-service-postgres psql -U postgres -d skin_service -f /tmp/seeds.sql
+
+Для ручного выполнения в консоли PostgreSQL (локальный):
+
+    psql -U postgres -d skin_service -f scripts/seeds.sql
 
 
 ## Swagger UI
@@ -76,9 +90,13 @@ Swagger доступен по адресу http://localhost:8080/swagger/index.h
     docker compose down
     docker compose up --build
 
-Запуск Docker:
+Запуск Docker (все):
 
     docker compose up
+
+Запуск только сервисов PostgreSQL + Migrate + Seed для тестирования:
+
+    docker compose up postgres migrate seed
 
 Полный сброс данных (PostgreSQL + MinIO):
 
