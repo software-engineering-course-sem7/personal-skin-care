@@ -14,12 +14,34 @@ services:
     networks:
       - skin-service-network
     depends_on:
-      - postgres
-      - minio
-      - ml-service
+      postgres:
+        condition: service_healthy
+      seed:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started
+      ml-service:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: skin-service-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: ""
+      VITE_USE_MOCK_ANALYSIS: "false"
+      VITE_PROXY_TARGET: "http://backend:8080"
+    depends_on:
+      - backend
+    networks:
+      - skin-service-network
 
   postgres:
-    image: postgres:17-alpine
+    image: postgres:17.11-alpine3.23
     container_name: skin-service-postgres
     restart: unless-stopped
     environment:
@@ -30,14 +52,47 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - skin-service-network
+
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.migrate
+    container_name: skin-service-migrate
+    restart: "no"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - skin-service-network
+
+  seed:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.seed
+    container_name: skin-service-seed
+    restart: "no"
+    env_file:
+      - .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     networks:
       - skin-service-network
 
   minio:
-    image: minio/minio:latest
+    image: bitnamilegacy/minio:2025.7.23-debian-12-r5
     container_name: skin-service-minio
     restart: unless-stopped
-    command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -45,7 +100,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio_data:/data
+      - minio_data:/bitnami/minio/data
     networks:
       - skin-service-network
 
@@ -71,4 +126,3 @@ volumes:
 networks:
   skin-service-network:
     driver: bridge
-

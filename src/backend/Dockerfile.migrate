@@ -1,0 +1,10 @@
+FROM golang:1.25.0-alpine3.22 AS migrations
+
+WORKDIR /app
+COPY migrations ./migrations
+
+FROM migrate/migrate:v4.20.1
+
+COPY --from=migrations /app/migrations /migrations
+
+ENTRYPOINT ["/bin/sh", "-c", "migrate -path /migrations -database postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable up"]
