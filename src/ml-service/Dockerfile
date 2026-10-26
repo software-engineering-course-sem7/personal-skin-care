@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11.17-slim-bookworm
 
 # System deps for OpenCV
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -9,7 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir --upgrade pip==24.0 \
+    && python -m pip install --no-cache-dir -r requirements.txt
 
 COPY src/ ./src/
 COPY models/ ./models/
