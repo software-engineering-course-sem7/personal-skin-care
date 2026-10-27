@@ -1,4 +1,4 @@
-﻿# Personal Skin Care
+# Personal Skin Care
 
 ## Запуск
 
@@ -48,3 +48,44 @@ curl http://localhost:8080/health
 **3. Сценарий сквозного тестирования**
 
 Зарегистрируйте нового пользователя на [http://localhost:5173/register](http://localhost:5173/register), загрузите тестовое фото лица на странице `/upload` и проверьте отображение результата анализа кожи, описания и рекомендаций на странице `/result/...`.
+
+## Независимая проверка запуска
+
+**Дата проверки:** 27.10.2026
+**Проверяющий:** Александра Дугина
+**Операционная система:** macOS (Apple Silicon, ARM64)
+**Ветка:** `lab-1`
+
+### Окружение
+
+- Go 1.25.0
+- Docker Engine 28.0.1
+- Docker Compose 2.33.1
+
+### Выполненные действия
+
+1. Репозиторий получен локально, выбрана ветка `lab-1`.
+2. Создан файл `src/.env` на основе `src/.env.example`.
+3. Скачана модель `efficientnet_merged.pth` и размещена в `src/ml-service/models/`.
+4. Проверена конфигурация Docker Compose командой `docker compose config --quiet` — ошибок не обнаружено.
+5. Выполнена попытка запуска проекта через `docker compose up --build`.
+6. Дополнительно выполнена локальная проверка сборки backend командой `go build ./cmd/server`.
+
+### Результаты проверки
+
+Docker успешно скачал образы PostgreSQL и MinIO, собрал образы `migrate`, `seed` и `ml-service`.
+
+Сборка backend завершилась ошибкой:
+
+```text
+internal/handler/health.go:11:2: no required module provides package github.com/pp-sem6-team/backend/internal/integration/storage
+internal/handler/errors.go:11:2: no required module provides package github.com/pp-sem6-team/backend/internal/integration/storage/minio
+```
+
+Аналогичная ошибка воспроизводится при локальной сборке backend через Go.
+
+**Итог:** полный запуск приложения не выполнен из-за отсутствующих пакетов `storage` и `storage/minio` в исходном коде backend. Проверить работу пользовательского интерфейса и взаимодействие сервисов не удалось.
+
+Проблема зарегистрирована в GitHub Issue #2.
+
+**Примечание:** при запуске Docker первоначально возникла локальная ошибка `docker-credential-desktop`. Для проверки использована временная конфигурация Docker, после чего сборка проекта продолжилась и выявила ошибку backend.
