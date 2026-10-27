@@ -7,7 +7,8 @@
 docker-compose.override.yml
 volumes/
 data/
-storage/
+# Local runtime data only (not the Go integration/storage package)
+/storage/
 minio-data/
 postgres-data/
 
