@@ -1,0 +1,7 @@
+FROM alpine:3.22.7
+
+RUN apk add --no-cache postgresql-client
+
+COPY scripts/seeds.sql /scripts/seeds.sql
+
+ENTRYPOINT ["/bin/sh", "-c", "psql \"postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}\" -f /scripts/seeds.sql"]

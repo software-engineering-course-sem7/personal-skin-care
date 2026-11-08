@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Единый фон приложения (страницы) */
+  --color-background: #ffffff;
+  --color-card: #ffffff;
+  --color-card-soft: #f3f5f0;
+  --color-primary: #f6dcdd;
+  --color-primary-hover: #efc8cb;
+  --color-accent-green: #c2d3af;
+  --color-text-main: #464742;
+  --color-text-secondary: #66625e;
+  --color-border: #e6e6e0;
+  --color-input-bg: #ffffff;
+  --color-error: #d96c6c;
+
+  --font-sans: Montserrat, ui-sans-serif, system-ui, Arial, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 28px;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-text-main font-sans antialiased;
+  }
+}
