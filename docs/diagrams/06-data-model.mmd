@@ -1,7 +1,7 @@
 classDiagram
     class Account["Учётная запись"] {
         UUID id
-        string email
+        string email UNIQUE
         string password_hash
         string name
         date birth_date
@@ -15,7 +15,7 @@ classDiagram
     }
     class Analysis["Анализ"] {
         UUID id
-        UUID photo_id
+        UUID photo_id UNIQUE
         string status
         string skin_type
         JSON analysis_data
