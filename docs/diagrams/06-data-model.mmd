@@ -1,0 +1,40 @@
+classDiagram
+    class Account["Учётная запись"] {
+        UUID id
+        string email UNIQUE
+        string password_hash
+        string name
+        date birth_date
+        string gender
+    }
+    class Photo["Фотография"] {
+        UUID id
+        UUID user_id
+        string object_key
+        datetime uploaded_at
+    }
+    class Analysis["Анализ"] {
+        UUID id
+        UUID photo_id UNIQUE
+        string status
+        string skin_type
+        JSON analysis_data
+        datetime created_at
+        datetime updated_at
+    }
+    class Recommendation["Рекомендация"] {
+        UUID id
+        string skin_type
+        string title
+        string description
+    }
+    class Ingredient["Ингредиент"] {
+        UUID id
+        string name
+        string description
+    }
+
+    Account "1" --> "0..*" Photo : владеет
+    Photo "1" --> "0..1" Analysis : имеет
+    Analysis "0..*" <-- "0..*" Recommendation : подбираются по типу кожи
+    Analysis "0..*" <-- "0..*" Ingredient : подбираются по типу кожи

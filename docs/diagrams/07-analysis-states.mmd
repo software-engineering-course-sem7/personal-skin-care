@@ -1,0 +1,16 @@
+stateDiagram-v2
+    direction LR
+
+    state "В обработке (processing)" as Processing
+    state "Готово (completed)" as Completed
+    state "Ошибка (failed)" as Failed
+    state "Удалён" as Deleted
+
+    [*] --> Processing : Фотография сохранена, анализ создан
+    Processing --> Completed : Получен и сохранён результат ML-анализа
+    Processing --> Failed : Ошибка обращения к ML-сервису или обработки фотографии
+
+    Processing --> Deleted : Пользователь удаляет анализ и фотографию
+    Completed --> Deleted : Пользователь удаляет анализ и фотографию
+    Failed --> Deleted : Пользователь удаляет анализ и фотографию
+    Deleted --> [*]
