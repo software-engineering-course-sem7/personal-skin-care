@@ -9,18 +9,17 @@
 ### Установка зависимостей
 
 ```bash
-# Клонирование репозитория
+# Клонируйте репозиторий
 git clone https://github.com/software-engineering-course-sem7/personal-skin-care.git
 cd personal-skin-care
 
-# Создание файла конфигурации окружения
+# Создайте файл конфигурации окружения
 cp src/.env.example src/.env
-
-# Скачивание весов ML-модели
-curl -L -o src/ml-service/models/efficientnet_merged.pth "https://drive.google.com/uc?export=download&id=1GaBZKCR4TTZ-C4sq8WmrKzEsPSTDfhO0"
 ```
 
-Зависимости сервисов устанавливаются автоматически при сборке Docker-образов. Файл весов модели не хранится в репозитории; если автоматическое скачивание недоступно, скачайте его по [ссылке](https://drive.google.com/uc?export=download&id=1GaBZKCR4TTZ-C4sq8WmrKzEsPSTDfhO0) вручную и поместите в папку `src/ml-service/models/`.
+Скачайте файл с весами модели (`efficientnet_merged.pth`) из [Google Drive](https://drive.google.com/uc?export=download&id=1GaBZKCR4TTZ-C4sq8WmrKzEsPSTDfhO0) и поместите его в папку `src/ml-service/models/`.
+
+Зависимости сервисов устанавливаются автоматически при сборке Docker-образов.
 
 ### Запуск
 
