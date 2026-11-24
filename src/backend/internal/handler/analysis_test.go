@@ -127,8 +127,8 @@ func TestCreateAnalysisAcceptsJPG(t *testing.T) {
 	}
 	response := httptest.NewRecorder()
 	router.ServeHTTP(response, photoRequest(t, "photo.jpg", photo.Bytes()))
-	if response.Code != http.StatusOK {
-		t.Fatalf("status = %d, want %d; body: %s", response.Code, http.StatusOK, response.Body.String())
+	if response.Code != http.StatusAccepted {
+		t.Fatalf("status = %d, want %d; body: %s", response.Code, http.StatusAccepted, response.Body.String())
 	}
 	var result dto.CreateAnalysisResponse
 	if err := json.Unmarshal(response.Body.Bytes(), &result); err != nil {
